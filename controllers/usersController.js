@@ -1,48 +1,52 @@
-const User = require("../models/User"); // Assuming you have a User model
+const User = require("../models/User");
+const bcrypt = require("bcrypt"); // Import bcrypt for password hashing
 
-// Controller to create a new user
-const createUser = async (req, res) => {
+// Controller to register a new user
+const registerUser = async (req, res) => {
   try {
-    // Extract user data from request body
     const { email, password, name } = req.body;
 
     // Check if the user already exists
     let existingUser = await User.findOne({ email });
-
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(409).json({ message: "User already exists" }); // Changed status to 409 Conflict
     }
 
-    // Create a new user instance
+    // Hash the password before saving
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new user instance with hashed password
     const newUser = new User({
       email,
-      password, // Make sure to hash the password before saving to the database
+      password: hashedPassword,
       name,
-      // Add other fields as needed
     });
 
     // Save the new user to the database
     await newUser.save();
 
+    // Return success response
     res
       .status(201)
-      .json({ message: "User created successfully", user: newUser });
+      .json({ message: "User registered successfully", user: newUser });
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
   }
 };
 
-// Controller to get information about the logged-in user
-const getLoggedInUser = async (req, res) => {
+// Controller to get user profile
+const getUserProfile = async (req, res) => {
   try {
     // Retrieve the logged-in user using the user id attached to the request object
     const user = await User.findById(req.user.id).select("-password");
 
+    // If user not found, return 404
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // Return user profile
     res.json(user);
   } catch (err) {
     console.error(err.message);
@@ -50,10 +54,7 @@ const getLoggedInUser = async (req, res) => {
   }
 };
 
-// Other user-related controllers can be added here...
-
 module.exports = {
-  createUser,
-  getLoggedInUser,
-  // Add other controller exports here...
+  registerUser,
+  getUserProfile,
 };
