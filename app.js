@@ -23,11 +23,11 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // CORS middleware - update the origin based on your frontend deployment
-app.use(
-  cors({
-    origin: "https://yourfrontenddomain.com", // Set your frontend domain here
-  })
-);
+// app.use(
+//   cors({
+//     origin: "https://yourfrontenddomain.com", // Set your frontend domain here
+//   })
+// );
 
 // Body Parser middleware
 app.use(bodyParser.json());

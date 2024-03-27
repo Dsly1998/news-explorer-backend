@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../middlewares/auth"); // Import auth middleware
 const usersController = require("../controllers/usersController");
-const { createUserValidator } = require("../utils/validator")
+const {createUserValidator} = require("../Utils/validator")
 
 // Protect the routes using the auth middleware
 
