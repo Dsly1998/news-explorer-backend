@@ -18,6 +18,6 @@ const createUserValidator = [
 ];
 
 module.exports = {
-    createUserValidator,
+    createUserValidator
     // You can export other validators as needed
 };

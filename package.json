@@ -5,8 +5,8 @@
   "main": ".eslintrc.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "command to run your project in dev mode",
-    "start": "command to run your project in production mode"
+    "dev": "nodemon app.js",
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
@@ -27,6 +27,7 @@
     "express-validator": "^7.0.1",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.5.0",
     "mongoose": "^8.2.1",
     "mongoose-unique-validator": "^5.0.0",
     "winston": "^3.12.0"
