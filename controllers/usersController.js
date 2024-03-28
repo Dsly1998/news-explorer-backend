@@ -1,31 +1,18 @@
 const User = require("../models/User");
-const bcrypt = require("bcrypt"); // Import bcrypt for password hashing
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
-// Controller to register a new user
 const registerUser = async (req, res) => {
   try {
     const { email, password, name } = req.body;
-
-    // Check if the user already exists
     let existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(409).json({ message: "User already exists" }); // Changed status to 409 Conflict
+      return res.status(409).json({ message: "User already exists" });
     }
 
-    // Hash the password before saving
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create a new user instance with hashed password
-    const newUser = new User({
-      email,
-      password: hashedPassword,
-      name,
-    });
-
-    // Save the new user to the database
+    const newUser = new User({ email, password: hashedPassword, name });
     await newUser.save();
-
-    // Return success response
     res
       .status(201)
       .json({ message: "User registered successfully", user: newUser });
@@ -35,18 +22,12 @@ const registerUser = async (req, res) => {
   }
 };
 
-// Controller to get user profile
 const getUserProfile = async (req, res) => {
   try {
-    // Retrieve the logged-in user using the user id attached to the request object
     const user = await User.findById(req.user.id).select("-password");
-
-    // If user not found, return 404
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-
-    // Return user profile
     res.json(user);
   } catch (err) {
     console.error(err.message);
@@ -54,7 +35,51 @@ const getUserProfile = async (req, res) => {
   }
 };
 
-module.exports = {
-  registerUser,
-  getUserProfile,
+const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Find user by email and select password explicitly for comparison
+    const user = await User.findOne({ email }).select("+password");
+    if (!user) {
+      return res
+        .status(401)
+        .json({ message: "Email or password is incorrect" });
+    }
+
+    // Compare submitted password with hashed password in database
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      console.log("Password mismatch for user:", email); // Debug log
+      return res
+        .status(401)
+        .json({ message: "Email or password is incorrect" });
+    }
+
+    // User matched, create JWT Payload
+    const payload = { user: { id: user.id } };
+
+    // Sign token
+    jwt.sign(
+      payload,
+      process.env.JWT_SECRET,
+      { expiresIn: 3600 },
+      (err, token) => {
+        if (err) {
+          console.error("Error signing token:", err.message); // Debug log
+          throw err;
+        }
+        res.json({
+          token,
+          user: { id: user.id, name: user.name, email: user.email },
+        });
+      }
+    );
+  } catch (err) {
+    console.error("Error in loginUser function:", err.message); // Debug log
+    res.status(500).send("Server error");
+  }
 };
+
+module.exports = { registerUser, getUserProfile, loginUser };

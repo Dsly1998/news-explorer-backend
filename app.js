@@ -7,7 +7,7 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const userRoutes = require("./routes/userRoutes");
 const articleRoutes = require("./routes/articleRoutes");
-const { errorHandler } = require("./middlewares/errorHandler");
+// const { errorHandler } = require("./middlewares/errorHandler");
 require("dotenv").config(); // Load environment variables
 
 const app = express(); // Initialize Express app
@@ -22,21 +22,20 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// CORS middleware - update the origin based on your frontend deployment
-// app.use(
-//   cors({
-//     origin: "https://yourfrontenddomain.com", // Set your frontend domain here
-//   })
-// );
+app.use(
+  cors({
+    origin: "http://localhost:3000", // Replace this with your frontend domain
+  })
+);
 
 // Body Parser middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Connect to MongoDB
-const mongoUri = process.env.MONGO_URI || "mongodb://localhost:27017/newsdb";
+const mongoUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/news_db";
 mongoose
-  .connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(mongoUri)
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.log(err));
 
@@ -49,10 +48,7 @@ app.get("/health", (req, res) => {
   res.status(200).send("OK");
 });
 
-// Centralized Error Handling
-app.use(errorHandler);
-
-const PORT = process.env.PORT || 3000; // Set the port
+const PORT = process.env.PORT || 3001; // Set the port
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
