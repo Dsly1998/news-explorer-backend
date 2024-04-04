@@ -1,17 +1,20 @@
 const mongoose = require("mongoose");
 
 const articleSchema = new mongoose.Schema({
-  keyword: { type: String, required: true },
-  title: { type: String, required: true },
-  text: { type: String, required: true },
-  date: { type: String, required: true },
-  source: { type: String, required: true },
-  link: {
+  searchKeyword: { type: String, required: true },
+  content: { type: String, required: true },
+  description: { type: String, required: true },
+  publishedAt: { type: String, required: true },
+  source: {
+    id: { type: String, required: false },
+    name: { type: String, required: true }
+  },
+  url: {
     type: String,
     required: true,
     match: [/^http[s]?:\/\/.*/, "Please fill a valid URL"],
   },
-  image: {
+  urlToImage: {
     type: String,
     required: true,
     match: [/^http[s]?:\/\/.*/, "Please fill a valid URL"],

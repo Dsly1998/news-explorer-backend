@@ -12,11 +12,13 @@ const getArticlesByUser = async (req, res) => {
 };
 
 const createArticle = async (req, res) => {
+  console.log("Received article data:", req.body);
   try {
     const newArticle = new Article({ ...req.body, owner: req.user.id });
     const article = await newArticle.save();
     res.status(201).json(article);
   } catch (err) {
+    console.error(err);
     res.status(500).send("Server Error");
   }
 };
