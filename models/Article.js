@@ -7,7 +7,7 @@ const articleSchema = new mongoose.Schema({
   publishedAt: { type: String, required: true },
   source: {
     id: { type: String, required: false },
-    name: { type: String, required: true }
+    name: { type: String, required: true },
   },
   url: {
     type: String,
