@@ -4,7 +4,6 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const helmet = require("helmet");
-const rateLimit = require("express-rate-limit");
 const userRoutes = require("./routes/userRoutes");
 const articleRoutes = require("./routes/articleRoutes");
 // const { errorHandler } = require("./middlewares/errorHandler");
@@ -14,13 +13,6 @@ const app = express(); // Initialize Express app
 
 // Enable Helmet for security headers
 app.use(helmet());
-
-// Rate Limiting middleware
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per window
-});
-app.use(limiter);
 
 app.use(
   cors({
