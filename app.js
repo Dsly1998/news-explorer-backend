@@ -1,4 +1,3 @@
-// Import required modules
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
@@ -6,43 +5,48 @@ const cors = require("cors");
 const helmet = require("helmet");
 const userRoutes = require("./routes/userRoutes");
 const articleRoutes = require("./routes/articleRoutes");
-// const { errorHandler } = require("./middlewares/errorHandler");
-require("dotenv").config(); // Load environment variables
+const logger = require("./middlewares/logger");
+const errorHandler = require("./middlewares/error-handler");
+require("dotenv").config();
 
-const app = express(); // Initialize Express app
+const app = express();
 
-// Enable Helmet for security headers
 app.use(helmet());
 
 app.use(
   cors({
-    origin: "http://localhost:3000", // Replace this with your frontend domain
+    origin: process.env.CORS_ORIGIN || "http://localhost:3000",
   })
 );
 
-// Body Parser middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Connect to MongoDB
-const mongoUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/news_db";
-mongoose
-  .connect(mongoUri)
-  .then(() => console.log("MongoDB Connected"))
-  .catch((err) => console.log(err));
+app.use((req, res, next) => {
+  logger.info(`Received ${req.method} request at ${req.url}`);
+  next();
+});
 
-// Define routes
-app.use("/users", userRoutes); // User routes
-app.use("/articles", articleRoutes); // Article routes
+app.use("/users", userRoutes);
+app.use("/articles", articleRoutes);
 
-// Health Check Endpoint
 app.get("/health", (req, res) => {
   res.status(200).send("OK");
 });
 
-const PORT = process.env.PORT || 3001; // Set the port
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+const mongoUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/news_db";
+mongoose
+  .connect(mongoUri)
+  .then(() => {
+    console.log("MongoDB Connected");
+    const PORT = process.env.PORT || 3001;
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  })
+  .catch((err) => logger.error(`Database Connection Error: ${err.message}`));
 
-module.exports = app; // Export the Express app
+// Apply error logging and handling middleware
+app.use(errorHandler);
+
+module.exports = app;

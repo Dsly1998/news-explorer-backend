@@ -1,36 +1,27 @@
-const requestLogger = (req, res, next) => {
-    const logEntry = {
-        timestamp: new Date().toISOString(),
-        method: req.method,
-        url: req.url
-    };
+const winston = require("winston");
+const { format, transports } = winston;
 
-    // Append to request log
-    fs.appendFile(path.join(__dirname, '../logs/request.log'), JSON.stringify(logEntry) + '\n', (err) => {
-        if (err) {
-            console.error('Error writing to request log:', err);
-        }
-    });
+// Custom format for logging
+const logFormat = format.printf(({ level, message, timestamp }) => {
+  return `${timestamp} ${level}: ${message}`;
+});
 
-    // Error logging
-    const originalSend = res.send;
-    res.send = function(data) {
-        if (res.statusCode >= 400) { // Log only when there's an error
-            const errorLogEntry = {
-                ...logEntry,
-                statusCode: res.statusCode,
-                error: data
-            };
-            fs.appendFile(path.join(__dirname, '../logs/error.log'), JSON.stringify(errorLogEntry) + '\n', (err) => {
-                if (err) {
-                    console.error('Error writing to error log:', err);
-                }
-            });
-        }
-        originalSend.apply(res, arguments);
-    };
+// Logger configuration
+const logger = winston.createLogger({
+  format: format.combine(format.timestamp(), format.json(), logFormat),
+  transports: [
+    new transports.File({ filename: "request.log", level: "info" }),
+    new transports.File({ filename: "error.log", level: "error" }),
+  ],
+});
 
-    next();
-};
+// If we're not in production then log to the `console`
+if (process.env.NODE_ENV !== "production") {
+  logger.add(
+    new transports.Console({
+      format: format.simple(),
+    })
+  );
+}
 
-module.exports = requestLogger;
+module.exports = logger;

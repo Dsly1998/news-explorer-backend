@@ -1,25 +1,24 @@
-// Middlewares/auth.js
-
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
+const UnauthorizedError = require("./errors/UnauthorizedError");
 
 const auth = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'No token provided, authorization denied' });
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    throw new UnauthorizedError("No token provided, authorization denied");
   }
 
-  const token = authHeader.split(' ')[1];
+  const token = authHeader.split(" ")[1];
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded.user;
     next();
   } catch (err) {
-    if (err.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'Token expired, please log in again' });
+    if (err.name === "TokenExpiredError") {
+      throw new UnauthorizedError("Token expired, please log in again");
     }
-    res.status(401).json({ message: 'Token is not valid' });
+    throw new UnauthorizedError("Token is not valid");
   }
 };
 
