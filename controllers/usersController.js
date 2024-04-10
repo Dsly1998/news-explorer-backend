@@ -17,7 +17,9 @@ const registerUser = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ email, password: hashedPassword, name });
     await newUser.save();
-    res.status(201).json({ message: "User registered successfully", user: newUser });
+    res
+      .status(201)
+      .json({ message: "User registered successfully", user: newUser });
   } catch (err) {
     next(new ServerError("Error registering user"));
   }
@@ -49,13 +51,21 @@ const loginUser = async (req, res, next) => {
     }
 
     const payload = { user: { id: user.id } };
-    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" }, (err, token) => {
-      if (err) {
-        console.error("Error signing token:", err.message);
-        throw new ServerError("Error signing token");
+    jwt.sign(
+      payload,
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" },
+      (err, token) => {
+        if (err) {
+          console.error("Error signing token:", err.message);
+          throw new ServerError("Error signing token");
+        }
+        res.json({
+          token,
+          user: { id: user.id, name: user.name, email: user.email },
+        });
       }
-      res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
-    });
+    );
   } catch (err) {
     next(err);
   }
