@@ -1,11 +1,18 @@
-const { celebrate, Joi, Segments } = require("celebrate");
+const { Joi, celebrate } = require('celebrate');
+const validator = require('validator');
 
-// Example validation for a user creation route using celebrate
+// Example validation for a user creation route using celebrate and validator
 const createUserValidator = celebrate({
-  [Segments.BODY]: Joi.object().keys({
-    email: Joi.string().email().required().messages({
+  body: Joi.object().keys({
+    email: Joi.string().email().required().custom((value, helpers) => {
+      if (!validator.isEmail(value)) {
+        return helpers.error("any.invalid");
+      }
+      return value;
+    }, "Custom Email Validation").messages({
       "string.email": "Enter a valid email address",
       "any.required": "Email is required",
+      "any.invalid": "Invalid email format",
     }),
     password: Joi.string().min(6).required().messages({
       "string.min": "Password must be at least 6 characters long",
@@ -18,5 +25,5 @@ const createUserValidator = celebrate({
 });
 
 module.exports = {
-  createUserValidator,
+  createUserValidator
 };
