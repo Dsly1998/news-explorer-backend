@@ -11,17 +11,7 @@ const app = express();
 // Security middleware to set various HTTP headers
 app.use(helmet());
 
-// CORS setup for different environments
-const corsOptions = {
-  origin:
-    process.env.NODE_ENV === "production"
-      ? "https://articlelist.ignorelist.com"
-      : "http://localhost:3001",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
-};
-app.use(cors(corsOptions));
+app.use(cors());
 
 // Built-in middleware for parsing JSON and urlencoded form data
 app.use(express.json());
