@@ -1,35 +1,41 @@
-const BadRequestError = require("./errors/BadRequestError");
-const UnauthorizedError = require("./errors/UnauthorizedError");
-const ForbiddenError = require("./errors/ForbiddenError");
-const NotFoundError = require("./errors/NotFoundError");
-const ConflictError = require("./errors/ConflictError");
-const ServerError = require("./errors/ServerError"); // Import ServerError
+const logger = require("./logger"); // Adjust the path as necessary
+const { isCelebrateError } = require("celebrate");
 
 const errorHandler = (err, req, res, next) => {
-  // Log the error along with additional request information for better debugging
-  console.error("Error:", err);
-  console.error("Error occurred in route:", req.path);
-  console.error("Request method:", req.method);
+  // Log error details
+  logger.error(`Error: ${err.message}`, {
+    path: req.path,
+    method: req.method,
+    stack: err.stack,
+    error: err,
+  });
 
-  // Check if the error is an instance of our custom error classes
+  // Check if the error is a known type and handle it
   if (
     err instanceof BadRequestError ||
     err instanceof UnauthorizedError ||
     err instanceof ForbiddenError ||
     err instanceof NotFoundError ||
     err instanceof ConflictError ||
-    err instanceof ServerError // Include ServerError in the check
+    err instanceof ServerError
   ) {
-    // Use the status code and message from the custom error
     return res.status(err.statusCode).json({ message: err.message });
   }
 
-  // For other types of errors (including internal server errors)
-  const statusCode = 500; // Default to 500 for any other types of errors
-  const message = "Internal Server Error"; // Default message for unknown errors
+  // Handle validation errors (e.g., from Joi/Celebrate)
+  if (isCelebrateError(err)) {
+    const details =
+      err.details.get("body") ||
+      err.details.get("query") ||
+      err.details.get("params");
+    return res.status(400).json({
+      message: "Validation failed",
+      details,
+    });
+  }
 
-  // Send the error response
-  return res.status(statusCode).json({ message });
+  // For unhandled errors, respond with 500 Internal Server Error
+  return res.status(500).json({ message: "Internal Server Error" });
 };
 
 module.exports = errorHandler;

@@ -18,3 +18,7 @@ npm-debug.log*
 # Logger files
 request.log
 error.log
+
+# env
+
+.env

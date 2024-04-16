@@ -3,7 +3,6 @@
 require("dotenv").config();
 
 module.exports = {
-  mongoUri: process.env.MONGO_URI,
-  jwtSecret: process.env.JWT_SECRET,
-  // other config variables
+  mongoUri: process.env.MONGO_URI || "mongodb://127.0.0.1:27017/news_db",
+  jwtSecret: process.env.JWT_SECRET || "development_secret",
 };

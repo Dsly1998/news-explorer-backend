@@ -1,20 +1,11 @@
 const express = require("express");
-
 const router = express.Router();
-const auth = require("../middlewares/auth"); // Import auth middleware
+const { validateArticle } = require("../utils/validator");
 const articlesController = require("../controllers/articlesController");
+const auth = require("../middlewares/auth");
 
-// Protect the routes using the auth middleware
-
-// Get all articles saved by the user
 router.get("/", auth, articlesController.getArticlesByUser);
-
-// Create a new article
-router.post("/", auth, articlesController.createArticle);
-
-// Delete an article by its ID
-router.delete("/:articleId", auth, articlesController.deleteArticle);
-
-// Additional article-related routes can be added here
+router.post("/", auth, validateArticle, articlesController.createArticle);
+router.delete("/:articleId", auth, validateArticle, articlesController.deleteArticle);
 
 module.exports = router;

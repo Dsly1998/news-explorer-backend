@@ -1,31 +1,38 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-const ConflictError = require("../middlewares/errors/ConflictError");
-const NotFoundError = require("../middlewares/errors/NotFoundError");
-const UnauthorizedError = require("../middlewares/errors/UnauthorizedError");
-const ServerError = require("../middlewares/errors/ServerError");
+const ConflictError = require("../errors/ConflictError");
+const NotFoundError = require("../errors/NotFoundError");
+const UnauthorizedError = require("../errors/UnauthorizedError");
+const ServerError = require("../errors/ServerError"); // Make sure this is defined and exported correctly
 
-const registerUser = async (req, res, next) => {
+exports.registerUser = async (req, res, next) => {
   try {
     const { email, password, name } = req.body;
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       throw new ConflictError("User already exists");
     }
-
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ email, password: hashedPassword, name });
     await newUser.save();
+
+    // Exclude password from the output explicitly
+    const userToReturn = {
+      id: newUser._id,
+      email: newUser.email,
+      name: newUser.name,
+    };
+
     res
       .status(201)
-      .json({ message: "User registered successfully", user: newUser });
+      .json({ message: "User registered successfully", user: userToReturn });
   } catch (err) {
-    next(new ServerError("Error registering user"));
+    next(err);
   }
 };
 
-const getUserProfile = async (req, res, next) => {
+exports.getUserProfile = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
     if (!user) {
@@ -33,23 +40,21 @@ const getUserProfile = async (req, res, next) => {
     }
     res.json(user);
   } catch (err) {
-    next(new ServerError("Error fetching user profile"));
+    next(err);
   }
 };
 
-const loginUser = async (req, res, next) => {
+exports.loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
       throw new UnauthorizedError("Email or password is incorrect");
     }
-
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       throw new UnauthorizedError("Email or password is incorrect");
     }
-
     const payload = { user: { id: user.id } };
     jwt.sign(
       payload,
@@ -57,7 +62,6 @@ const loginUser = async (req, res, next) => {
       { expiresIn: "1d" },
       (err, token) => {
         if (err) {
-          console.error("Error signing token:", err.message);
           throw new ServerError("Error signing token");
         }
         res.json({
