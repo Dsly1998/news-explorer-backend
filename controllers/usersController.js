@@ -1,6 +1,6 @@
-const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 const ConflictError = require("../middlewares/errors/ConflictError");
 const NotFoundError = require("../middlewares/errors/NotFoundError");
 const UnauthorizedError = require("../middlewares/errors/UnauthorizedError");
@@ -9,7 +9,7 @@ const ServerError = require("../middlewares/errors/ServerError");
 const registerUser = async (req, res, next) => {
   try {
     const { email, password, name } = req.body;
-    let existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       throw new ConflictError("User already exists");
     }
@@ -64,7 +64,7 @@ const loginUser = async (req, res, next) => {
           token,
           user: { id: user.id, name: user.name, email: user.email },
         });
-      }
+      },
     );
   } catch (err) {
     next(err);

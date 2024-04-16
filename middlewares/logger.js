@@ -1,4 +1,5 @@
 const winston = require("winston");
+
 const { format, transports } = winston;
 
 // Custom format for logging
@@ -20,7 +21,7 @@ if (process.env.NODE_ENV !== "production") {
   logger.add(
     new transports.Console({
       format: format.simple(),
-    })
+    }),
   );
 }
 

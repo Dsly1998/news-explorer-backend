@@ -26,6 +26,7 @@ app.use((req, res, next) => {
 // Routes
 const userRoutes = require("./routes/userRoutes");
 const articleRoutes = require("./routes/articleRoutes");
+
 app.use("/users", userRoutes);
 app.use("/articles", articleRoutes);
 

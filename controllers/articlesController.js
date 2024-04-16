@@ -24,7 +24,9 @@ const createArticle = async (req, res, next) => {
 
 const deleteArticle = async (req, res, next) => {
   try {
-    const article = await Article.findById(req.params.articleId).populate("owner");
+    const article = await Article.findById(req.params.articleId).populate(
+      "owner",
+    );
     if (!article) {
       throw new NotFoundError("Article not found");
     }
