@@ -1,22 +1,22 @@
 module.exports = {
-    env: {
-      browser: true,
-      commonjs: true,
-      es2021: true,
-    },
-    extends: ["eslint:recommended", "airbnb-base", "plugin:prettier/recommended"],
-    parserOptions: {
-      ecmaVersion: 12, // Explicitly set to 2021 or 12 which is essentially the same. This ensures the latest ECMAScript features are supported.
-    },
-    rules: {
-      "no-underscore-dangle": [
-        "error",
-        {
-          allow: ["_id"], // Allowing _id (commonly used in MongoDB)
-        },
-      ],
-      "no-unused-vars": ["error", { argsIgnorePattern: "next" }],
-      // Any additional custom rules can be added here
-    },
-  };
-  
+  env: {
+    browser: true,
+    commonjs: true,
+    es2021: true,
+  },
+  extends: [
+    "eslint:recommended",
+    "airbnb-base",
+    "plugin:prettier/recommended" // This should come last
+  ],
+  parserOptions: {
+    ecmaVersion: 12,
+  },
+  rules: {
+    "no-underscore-dangle": [
+      "error",
+      { "allow": ["_id"] }
+    ],
+    "no-unused-vars": ["error", { "argsIgnorePattern": "next" }]
+  },
+};
