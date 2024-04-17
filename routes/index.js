@@ -1,6 +1,7 @@
 // index.js in the routes directory
 
 const express = require("express");
+
 const router = express.Router();
 
 // Import individual route modules

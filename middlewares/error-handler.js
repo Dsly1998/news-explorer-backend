@@ -1,14 +1,15 @@
-const logger = require("./logger"); // Adjust the path as necessary
 const { isCelebrateError } = require("celebrate");
+const BadRequestError = require("./errors/BadRequestError");
+const UnauthorizedError = require("./errors/UnauthorizedError");
+const ForbiddenError = require("./errors/ForbiddenError");
+const NotFoundError = require("./errors/NotFoundError");
+const ConflictError = require("./errors/ConflictError");
+const ServerError = require("./errors/ServerError");
 
 const errorHandler = (err, req, res, next) => {
-  // Log error details
-  logger.error(`Error: ${err.message}`, {
-    path: req.path,
-    method: req.method,
-    stack: err.stack,
-    error: err,
-  });
+  console.error("Error:", err);
+  console.error("Error occurred in route:", req.path);
+  console.error("Request method:", req.method);
 
   // Check if the error is a known type and handle it
   if (
@@ -24,17 +25,17 @@ const errorHandler = (err, req, res, next) => {
 
   // Handle validation errors (e.g., from Joi/Celebrate)
   if (isCelebrateError(err)) {
-    const details =
-      err.details.get("body") ||
-      err.details.get("query") ||
-      err.details.get("params");
     return res.status(400).json({
       message: "Validation failed",
-      details,
+      details:
+        err.details.get("body") ||
+        err.details.get("query") ||
+        err.details.get("params"),
     });
   }
 
-  // For unhandled errors, respond with 500 Internal Server Error
+  // For unhandled errors, log them and respond with 500 Internal Server Error
+  console.error("Unhandled error:", err);
   return res.status(500).json({ message: "Internal Server Error" });
 };
 

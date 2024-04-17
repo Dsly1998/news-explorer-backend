@@ -1,8 +1,8 @@
 const express = require("express");
+
 const router = express.Router();
 const auth = require("../middlewares/auth"); // Import auth middleware
 const articlesController = require("../controllers/articlesController");
-
 
 // Protect the routes using the auth middleware
 
