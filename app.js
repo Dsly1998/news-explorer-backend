@@ -8,38 +8,37 @@ const errorHandler = require("./middlewares/error-handler");
 require("dotenv").config();
 
 const app = express();
+
+// Security middleware to set various HTTP headers
 app.use(helmet());
+
 app.use(cors());
+
+// Built-in middleware for parsing JSON and urlencoded form data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use("/api", apiRateLimiter);
+
+// Simple request logger middleware
 app.use((req, res, next) => {
   logger.info(`Received ${req.method} request at ${req.url}`);
   next();
 });
 
-app.use("/api", apiRateLimiter);
+// Routes
+const userRoutes = require("./routes/userRoutes");
+const articleRoutes = require("./routes/articleRoutes");
 
-// Import centralized routes from the index.js in the routes folder
-const routes = require("./routes/index");
+app.use("/", userRoutes);
+app.use("/articles", articleRoutes);
 
-// Use centralized routes with '/api' prefix
-app.use("/api", routes);
-
+// Health check endpoint
 app.get("/health", (req, res) => {
   res.status(200).send("OK");
 });
 
-// Handle not found routes for API
-app.use("/api/*", (req, res, next) => {
-  res.status(404).send("API resource not found.");
-});
-
-// Handle not found routes for general
-app.use("*", (req, res, next) => {
-  res.status(404).send("The requested resource was not found.");
-});
-
+// MongoDB connection
 const mongoUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/news_db";
 mongoose
   .connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -52,9 +51,9 @@ mongoose
   })
   .catch((err) => {
     logger.error(`Database Connection Error: ${err.message}`);
-    process.exit(1); // Exit the process with an error code
   });
 
-app.use(errorHandler); // Ensure this is the last middleware used
+// Error handling middleware
+app.use(errorHandler);
 
 module.exports = app;

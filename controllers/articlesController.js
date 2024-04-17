@@ -1,6 +1,6 @@
 const Article = require("../models/Article");
-const NotFoundError = require("../errors/NotFoundError");
-const ForbiddenError = require("../errors/ForbiddenError");
+const NotFoundError = require("../middlewares/errors/NotFoundError");
+const ForbiddenError = require("../middlewares/errors/ForbiddenError");
 
 exports.getArticlesByUser = async (req, res, next) => {
   try {
@@ -37,10 +37,4 @@ exports.deleteArticle = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-};
-
-module.exports = {
-  getArticlesByUser,
-  createArticle,
-  deleteArticle,
 };

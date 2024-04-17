@@ -1,10 +1,10 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-const ConflictError = require("../errors/ConflictError");
-const NotFoundError = require("../errors/NotFoundError");
-const UnauthorizedError = require("../errors/UnauthorizedError");
-const ServerError = require("../errors/ServerError"); // Make sure this is defined and exported correctly
+const ConflictError = require("../middlewares/errors/ConflictError");
+const NotFoundError = require("../middlewares/errors/NotFoundError");
+const UnauthorizedError = require("../middlewares/errors/UnauthorizedError");
+const ServerError = require("../middlewares/errors/ServerError"); // Make sure this is defined and exported correctly
 
 exports.registerUser = async (req, res, next) => {
   try {
@@ -74,5 +74,3 @@ exports.loginUser = async (req, res, next) => {
     next(err);
   }
 };
-
-module.exports = { registerUser, getUserProfile, loginUser };
