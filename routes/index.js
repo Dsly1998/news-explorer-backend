@@ -1,14 +1,14 @@
-// const express = require('express');
-// const router = express.Router();
+// index.js in the routes directory
 
-// // Import individual routers
-// const userRoutes = require('./userRoutes');
-// const authRoutes = require('./authRoutes');
-// const articleRoutes = require('./articleRoutes');
+const express = require("express");
+const router = express.Router();
 
-// // Setup route endpoints
-// router.use('/', authRoutes);
-// router.use('/users', userRoutes);
-// router.use('/articles', articleRoutes);
+// Import individual route modules
+const userRoutes = require("./userRoutes");
+const articleRoutes = require("./articleRoutes");
 
-// module.exports = router;
+// Setup route endpoints
+router.use("/", userRoutes); // Assuming user routes include both protected and public routes
+router.use("/articles", articleRoutes); // Protected article routes
+
+module.exports = router;

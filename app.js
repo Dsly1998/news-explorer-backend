@@ -27,11 +27,9 @@ app.use((req, res, next) => {
 });
 
 // Routes
-const userRoutes = require("./routes/userRoutes");
-const articleRoutes = require("./routes/articleRoutes");
+const routes = require("./routes/index");
 
-app.use("/", userRoutes);
-app.use("/articles", articleRoutes);
+app.use("/", routes);
 
 // Health check endpoint
 app.get("/health", (req, res) => {
