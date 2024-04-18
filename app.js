@@ -23,7 +23,10 @@ const jwtSecret = process.env.JWT_SECRET || DEFAULT_JWT_SECRET;
 
 // Security middleware to set various HTTP headers
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: 'https://api.articlelist.ignorelist.com'
+}));
+
 
 // Built-in middleware for parsing JSON and urlencoded form data
 app.use(express.json());
