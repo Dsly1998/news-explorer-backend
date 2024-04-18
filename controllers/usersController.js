@@ -26,6 +26,12 @@ exports.registerUser = async (req, res, next) => {
       .status(201)
       .json({ message: "User registered successfully", user: userToReturn });
   } catch (err) {
+    if (err.name === "ValidationError") {
+      return res.status(400).json({
+        error: "Validation Error",
+        message: err.message,
+      });
+    }
     logger.error(`Registration error for ${req.body.email}: ${err.message}`);
     next(err);
   }

@@ -50,11 +50,12 @@ app.get("/health", (req, res) => {
   res.status(200).send("OK");
 });
 
-// Catch 404 and forward to error handler
-app.use((req, res, next) => {
-  const err = new Error("Not Found");
-  err.status = 404;
-  next(err);
+// Catch 404 and directly return a 404 response
+app.use((req, res) => {
+  res.status(404).json({
+    error: "Not Found",
+    message: "The requested resource was not found",
+  });
 });
 
 // Celebrate error handler to catch and format validation errors

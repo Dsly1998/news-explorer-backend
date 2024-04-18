@@ -21,6 +21,12 @@ exports.createArticle = async (req, res, next) => {
     const article = await newArticle.save();
     res.status(201).json(article);
   } catch (err) {
+    if (err.name === "ValidationError") {
+      return res.status(400).json({
+        error: "Validation Error",
+        message: err.message,
+      });
+    }
     logger.error(
       `Error creating article for user ${req.user.id}: ${err.message}`,
     );
