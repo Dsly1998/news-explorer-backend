@@ -1,17 +1,17 @@
 const Article = require("../models/Article");
 const NotFoundError = require("../middlewares/errors/NotFoundError");
 const ForbiddenError = require("../middlewares/errors/ForbiddenError");
-const logger = require("../middlewares/logger"); // Ensure you import your logger
+const logger = require("../middlewares/logger");
 
 exports.getArticlesByUser = async (req, res, next) => {
   try {
     const articles = await Article.find({ owner: req.user.id });
-    res.json(articles);
+    return res.json(articles);
   } catch (err) {
     logger.error(
       `Error fetching articles by user ${req.user.id}: ${err.message}`,
     );
-    next(err);
+    return next(err);
   }
 };
 
@@ -19,7 +19,7 @@ exports.createArticle = async (req, res, next) => {
   try {
     const newArticle = new Article({ ...req.body, owner: req.user.id });
     const article = await newArticle.save();
-    res.status(201).json(article);
+    return res.status(201).json(article);
   } catch (err) {
     if (err.name === "ValidationError") {
       return res.status(400).json({
@@ -30,7 +30,7 @@ exports.createArticle = async (req, res, next) => {
     logger.error(
       `Error creating article for user ${req.user.id}: ${err.message}`,
     );
-    next(err);
+    return next(err);
   }
 };
 
@@ -46,11 +46,11 @@ exports.deleteArticle = async (req, res, next) => {
       throw new ForbiddenError("User not authorized to delete this article");
     }
     await Article.findByIdAndDelete(req.params.articleId);
-    res.json({ msg: "Article removed" });
+    return res.json({ msg: "Article removed" });
   } catch (err) {
     logger.error(
       `Error deleting article ${req.params.articleId}: ${err.message}`,
     );
-    next(err);
+    return next(err);
   }
 };

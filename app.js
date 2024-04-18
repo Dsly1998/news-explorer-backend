@@ -14,10 +14,12 @@ const app = express();
 // Default values for development
 const DEFAULT_MONGO_URI = "mongodb://127.0.0.1:27017/news_db";
 const DEFAULT_PORT = 3001;
+const DEFAULT_JWT_SECRET = "default_secret_key"; // Default JWT secret key for development
 
 // Configuration values with defaults as fallback
 const mongoUri = process.env.MONGO_URI || DEFAULT_MONGO_URI;
 const port = process.env.PORT || DEFAULT_PORT;
+const jwtSecret = process.env.JWT_SECRET || DEFAULT_JWT_SECRET;
 
 // Security middleware to set various HTTP headers
 app.use(helmet());
