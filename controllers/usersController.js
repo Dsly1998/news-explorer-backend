@@ -5,7 +5,7 @@ const ConflictError = require("../middlewares/errors/ConflictError");
 const NotFoundError = require("../middlewares/errors/NotFoundError");
 const UnauthorizedError = require("../middlewares/errors/UnauthorizedError");
 const ServerError = require("../middlewares/errors/ServerError");
-const logger = require("../middlewares/logger"); 
+const logger = require("../middlewares/logger");
 
 exports.registerUser = async (req, res, next) => {
   try {

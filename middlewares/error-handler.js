@@ -8,7 +8,7 @@ const ConflictError = require("./errors/ConflictError");
 const ServerError = require("./errors/ServerError");
 
 const errorHandler = (err, req, res, next) => {
-  let logMessage = `${err.statusCode || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`;
+  const logMessage = `${err.statusCode || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`;
 
   // Check if the error is a known type and handle it
   if (

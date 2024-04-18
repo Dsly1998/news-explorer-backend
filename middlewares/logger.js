@@ -1,9 +1,10 @@
 const winston = require("winston");
+
 const { createLogger, format, transports } = winston;
 const { combine, timestamp, printf, errors } = format;
 
 // Define a custom format for better readability.
-const logFormat = printf(({ level, message, timestamp, stack }) => {
+const logFormat = printf(({ level, message, stack }) => {
   // Include the stack trace if available
   return `${timestamp} ${level}: ${message}${stack ? ` | Stack: ${stack}` : ""}`;
 });
