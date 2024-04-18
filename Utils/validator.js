@@ -35,20 +35,32 @@ const validateLogin = celebrate({
   }),
 });
 
-const validateArticle = celebrate({
+const validateArticleCreation = celebrate({
   [Segments.BODY]: Joi.object().keys({
-    title: Joi.string().required().messages({
-      "string.base": "Title must be a string.",
-      "any.required": "Title is required.",
+    author: Joi.allow(null).required(),
+    content: Joi.string().required(),
+    description: Joi.string().required(),
+    publishedAt: Joi.string().isoDate(),
+    searchKeyword: Joi.string(),
+    source: Joi.object({
+      id: Joi.allow(null), // Allow null values
+      name: Joi.string().required(),
     }),
-    content: Joi.string().required().messages({
-      "string.base": "Content must be a string.",
-      "any.required": "Content is required.",
-    }),
+    title: Joi.string().required(),
+    url: Joi.string().uri(),
+    urlToImage: Joi.string().uri(),
   }),
+});
+
+const validateArticleDeletion = celebrate({
   [Segments.PARAMS]: Joi.object().keys({
     articleId: Joi.string().hex().length(24).required(),
   }),
 });
 
-module.exports = { createUserValidator, validateLogin, validateArticle };
+module.exports = {
+  createUserValidator,
+  validateLogin,
+  validateArticleCreation,
+  validateArticleDeletion,
+};

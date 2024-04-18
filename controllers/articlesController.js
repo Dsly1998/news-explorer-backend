@@ -1,13 +1,17 @@
 const Article = require("../models/Article");
 const NotFoundError = require("../middlewares/errors/NotFoundError");
 const ForbiddenError = require("../middlewares/errors/ForbiddenError");
+const logger = require("../middlewares/logger"); // Ensure you import your logger
 
 exports.getArticlesByUser = async (req, res, next) => {
   try {
     const articles = await Article.find({ owner: req.user.id });
     res.json(articles);
   } catch (err) {
-    next(err); // Passes errors to the error handler middleware
+    logger.error(
+      `Error fetching articles by user ${req.user.id}: ${err.message}`,
+    );
+    next(err);
   }
 };
 
@@ -17,6 +21,9 @@ exports.createArticle = async (req, res, next) => {
     const article = await newArticle.save();
     res.status(201).json(article);
   } catch (err) {
+    logger.error(
+      `Error creating article for user ${req.user.id}: ${err.message}`,
+    );
     next(err);
   }
 };
@@ -35,6 +42,9 @@ exports.deleteArticle = async (req, res, next) => {
     await Article.findByIdAndDelete(req.params.articleId);
     res.json({ msg: "Article removed" });
   } catch (err) {
+    logger.error(
+      `Error deleting article ${req.params.articleId}: ${err.message}`,
+    );
     next(err);
   }
 };

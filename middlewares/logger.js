@@ -1,26 +1,37 @@
 const winston = require("winston");
+const { createLogger, format, transports } = winston;
+const { combine, timestamp, printf, errors } = format;
 
-const { format, transports } = winston;
-
-// Custom format for logging
-const logFormat = format.printf(({ level, message, timestamp }) => {
-  return `${timestamp} ${level}: ${message}`;
+// Define a custom format for better readability.
+const logFormat = printf(({ level, message, timestamp, stack }) => {
+  // Include the stack trace if available
+  return `${timestamp} ${level}: ${message}${stack ? ` | Stack: ${stack}` : ""}`;
 });
 
-// Logger configuration
-const logger = winston.createLogger({
-  format: format.combine(format.timestamp(), format.json(), logFormat),
+// Initialize logger
+const logger = createLogger({
+  level: "info", // Logs everything from 'info' level and above.
+  format: combine(
+    timestamp({ format: "YYYY-MM-DD HH:mm:ss" }), // Custom timestamp format
+    errors({ stack: true }), // Capture stack trace for error objects
+    logFormat,
+  ),
   transports: [
-    new transports.File({ filename: "request.log", level: "info" }),
+    // Transport for error logs
     new transports.File({ filename: "error.log", level: "error" }),
+    // Transport for informational logs
+    new transports.File({ filename: "request.log", level: "info" }),
   ],
 });
 
-// If we're not in production then log to the `console`
+// In non-production environments, also log to the console.
 if (process.env.NODE_ENV !== "production") {
   logger.add(
     new transports.Console({
-      format: format.simple(),
+      format: combine(
+        format.colorize(), // Colorize log output for better readability on the console
+        logFormat,
+      ),
     }),
   );
 }

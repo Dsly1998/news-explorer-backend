@@ -4,7 +4,8 @@ const User = require("../models/User");
 const ConflictError = require("../middlewares/errors/ConflictError");
 const NotFoundError = require("../middlewares/errors/NotFoundError");
 const UnauthorizedError = require("../middlewares/errors/UnauthorizedError");
-const ServerError = require("../middlewares/errors/ServerError"); // Make sure this is defined and exported correctly
+const ServerError = require("../middlewares/errors/ServerError");
+const logger = require("../middlewares/logger"); 
 
 exports.registerUser = async (req, res, next) => {
   try {
@@ -16,18 +17,16 @@ exports.registerUser = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ email, password: hashedPassword, name });
     await newUser.save();
-
-    // Exclude password from the output explicitly
     const userToReturn = {
       id: newUser._id,
       email: newUser.email,
       name: newUser.name,
     };
-
     res
       .status(201)
       .json({ message: "User registered successfully", user: userToReturn });
   } catch (err) {
+    logger.error(`Registration error for ${req.body.email}: ${err.message}`);
     next(err);
   }
 };
@@ -40,6 +39,9 @@ exports.getUserProfile = async (req, res, next) => {
     }
     res.json(user);
   } catch (err) {
+    logger.error(
+      `Error fetching profile for user ${req.user.id}: ${err.message}`,
+    );
     next(err);
   }
 };
@@ -71,6 +73,7 @@ exports.loginUser = async (req, res, next) => {
       },
     );
   } catch (err) {
+    logger.error(`Login error for ${req.body.email}: ${err.message}`);
     next(err);
   }
 };

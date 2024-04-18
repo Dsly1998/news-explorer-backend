@@ -5,19 +5,31 @@ const cors = require("cors");
 const logger = require("./middlewares/logger");
 const apiRateLimiter = require("./Utils/rateLimiter");
 const errorHandler = require("./middlewares/error-handler");
-require("dotenv").config();
+const { errors } = require("celebrate"); // Celebrate error handler
+
+require("dotenv").config(); // This will load .env file if it exists
 
 const app = express();
 
+// Default values for development
+const DEFAULT_MONGO_URI = "mongodb://127.0.0.1:27017/news_db";
+const DEFAULT_PORT = 3001;
+const DEFAULT_JWT_SECRET = "default_secret_key"; // Default JWT secret key for development
+
+// Configuration values with defaults as fallback
+const mongoUri = process.env.MONGO_URI || DEFAULT_MONGO_URI;
+const port = process.env.PORT || DEFAULT_PORT;
+const jwtSecret = process.env.JWT_SECRET || DEFAULT_JWT_SECRET;
+
 // Security middleware to set various HTTP headers
 app.use(helmet());
-
 app.use(cors());
 
 // Built-in middleware for parsing JSON and urlencoded form data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Rate limiting middleware applied to all API requests
 app.use("/api", apiRateLimiter);
 
 // Simple request logger middleware
@@ -28,7 +40,6 @@ app.use((req, res, next) => {
 
 // Routes
 const routes = require("./routes/index");
-
 app.use("/", routes);
 
 // Health check endpoint
@@ -36,22 +47,31 @@ app.get("/health", (req, res) => {
   res.status(200).send("OK");
 });
 
+// Catch 404 and forward to error handler
+app.use((req, res, next) => {
+  const err = new Error("Not Found");
+  err.status = 404;
+  next(err);
+});
+
+// Celebrate error handler to catch and format validation errors
+app.use(errors());
+
+// General error handling middleware
+app.use(errorHandler);
+
 // MongoDB connection
-const mongoUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/news_db";
 mongoose
   .connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log("MongoDB Connected");
-    const PORT = process.env.PORT || 3001;
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
     });
   })
   .catch((err) => {
     logger.error(`Database Connection Error: ${err.message}`);
+    process.exit(1); // Exit the process if unable to connect to the database
   });
-
-// Error handling middleware
-app.use(errorHandler);
 
 module.exports = app;
