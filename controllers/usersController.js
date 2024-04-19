@@ -22,7 +22,7 @@ exports.registerUser = async (req, res, next) => {
       email: newUser.email,
       name: newUser.name,
     };
-    res
+    return res
       .status(201)
       .json({ message: "User registered successfully", user: userToReturn });
   } catch (err) {
@@ -33,7 +33,7 @@ exports.registerUser = async (req, res, next) => {
       });
     }
     logger.error(`Registration error for ${req.body.email}: ${err.message}`);
-    next(err);
+    return next(err);
   }
 };
 
