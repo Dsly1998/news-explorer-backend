@@ -14,11 +14,7 @@ const app = express();
 
 // Security middleware to set various HTTP headers
 app.use(helmet());
-app.use(
-  cors({
-    origin: "https://api.articlelist.ignorelist.com",
-  }),
-);
+app.use(cors());
 
 // Built-in middleware for parsing JSON and urlencoded form data
 app.use(express.json());
