@@ -37,6 +37,7 @@ const validateLogin = celebrate({
 
 const validateArticleCreation = celebrate({
   [Segments.BODY]: Joi.object().keys({
+    author: Joi.allow(null).required(),
     content: Joi.string().required(),
     description: Joi.string().required(),
     publishedAt: Joi.string().isoDate(),
@@ -45,6 +46,7 @@ const validateArticleCreation = celebrate({
       id: Joi.allow(null), // Allow null values
       name: Joi.string().required(),
     }),
+    title: Joi.string().required(),
     url: Joi.string().uri(),
     urlToImage: Joi.string().uri(),
   }),
