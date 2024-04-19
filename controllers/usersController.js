@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const { jwtSecret } = require("../Utils/config");
 const ConflictError = require("../middlewares/errors/ConflictError");
 const NotFoundError = require("../middlewares/errors/NotFoundError");
 const UnauthorizedError = require("../middlewares/errors/UnauthorizedError");
@@ -64,20 +65,15 @@ exports.loginUser = async (req, res, next) => {
       throw new UnauthorizedError("Email or password is incorrect");
     }
     const payload = { user: { id: user.id } };
-    jwt.sign(
-      payload,
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" },
-      (err, token) => {
-        if (err) {
-          throw new ServerError("Error signing token");
-        }
-        res.json({
-          token,
-          user: { id: user.id, name: user.name, email: user.email },
-        });
-      },
-    );
+    jwt.sign(payload, jwtSecret, { expiresIn: "1d" }, (err, token) => {
+      if (err) {
+        throw new ServerError("Error signing token");
+      }
+      res.json({
+        token,
+        user: { id: user.id, name: user.name, email: user.email },
+      });
+    });
   } catch (err) {
     logger.error(`Login error for ${req.body.email}: ${err.message}`);
     next(err);
